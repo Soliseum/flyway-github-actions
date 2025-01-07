@@ -1,0 +1,15 @@
+﻿SET NUMERIC_ROUNDABORT OFF
+GO
+SET ANSI_PADDING, ANSI_WARNINGS, CONCAT_NULL_YIELDS_NULL, ARITHABORT, QUOTED_IDENTIFIER, ANSI_NULLS ON
+GO
+PRINT N'Creating [dbo].[Movies]'
+GO
+CREATE TABLE [dbo].[Movies]
+(
+[ID] [int] NOT NULL IDENTITY(1, 1),
+[Title] [nvarchar] (50) NOT NULL,
+[Category] [nvarchar] (50) NOT NULL,
+[IMDB] [decimal] (6, 2) NULL
+)
+GO
+
