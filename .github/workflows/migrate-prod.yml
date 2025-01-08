@@ -24,7 +24,7 @@ jobs:
     runs-on: self-hosted #ubuntu-latest
     defaults:
       run:
-        shell: bash
+        shell: pwsh
 
     steps:
       - uses: actions/checkout@v4
