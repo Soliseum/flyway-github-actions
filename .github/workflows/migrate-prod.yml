@@ -32,15 +32,7 @@ jobs:
           ref: "main"
 
       - name: Flyway Migrate
-        run: |
-          flyway migrate \
-          -url="${{ vars.DB_SERVER }};databaseName=${{ vars.DB_NAME_QA }};encrypt=${{ vars.ENCRYPT_BOOL }};trustServerCertificate=${{ vars.TRUST_CERT_BOOL }}" \
-          -user=${{ vars.DB_USER_NAME_QA }} \
-          -password=${{ secrets.DB_USER_PW_QA }} \
-          -locations="filesystem:${{ github.workspace }}/migrations" \
-          -configFiles="${{ github.workspace }}/flyway.toml" \
-          -baselineOnMigrate=true \
-          -errorOverrides=S0001:0:I-
+        run: flyway migrate -url="${{ vars.DB_SERVER }};databaseName=${{ vars.DB_NAME_QA }};encrypt=${{ vars.ENCRYPT_BOOL }};trustServerCertificate=${{ vars.TRUST_CERT_BOOL }}" -user=${{ vars.DB_USER_NAME_QA }} -password=${{ secrets.DB_USER_PW_QA }} -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
         working-directory: ./migrations
         # -baselineVersion=${{ vars.BASELINE_VERSION }}
         # -licenseKey=${{ secrets.FLYWAY_LICENSE_KEY }}
