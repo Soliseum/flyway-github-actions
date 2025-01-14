@@ -5,20 +5,29 @@ on:
       - "main"
 
 env:
-  EMAIL: ${{ vars.USER_EMAIL }} #example call within jobs ${{ env.EMAIL }}
+
+  # Vars - Repository Variable - Create this within the Projects Settings > Variables > Actions section
+  EMAIL: ${{ vars.USER_EMAIL }} 
+  DB_SERVER: ${{ vars.DB_SERVER }}
+  DB_QA: ${{ vars.DB_NAME_QA }}
+  ENCRYPT: ${{ vars.ENCRYPT_BOOL }}
+  TRUST_CERT: ${{ vars.TRUST_CERT_BOOL }}
+  DB_USER_QA: ${{ vars.DB_USER_NAME_QA }}
+  # BASELINE_VERSION: ${{ vars.BASELINE_VERSION }}
+  
+  # Secrets - Repository Secret - Create this within the Projects Settings > Secrets > Actions section
+  TOKEN: ${{ secrets.FLYWAY_TOKEN }} 
+  DB_USER_PW_QA: ${{ secrets.DB_USER_PW_QA }}
+  # FIRST_UNDO_SCRIPT: ${{ secrets.FIRST_UNDO_SCRIPT }} # If the first undo script is U002, this will validate all undo scripts up to and including that script
+
 # on:
 #   push:
 #     paths:
 #       - migrations/**
 # env:
 #   FLYWAY_TOKEN: ${{ secrets.FLYWAY_LICENSE_KEY }} #Repository Secret - Create this within the Projects Settings > Secrets > Actions section
-#   # If the first undo script is U002, this will validate all undo scripts up to and including that
-#   FIRST_UNDO_SCRIPT: ${{ secrets.FIRST_UNDO_SCRIPT }}
-#   # Enable this for additional debug logging
-#   ACTIONS_RUNNER_DEBUG: true
+#   
 
-#   # JDBC connection string properties
-#   JDBC_HOST: ${{ secrets.DB_HOST }}
 
 
 jobs:
@@ -34,7 +43,7 @@ jobs:
           ref: "main"
 
       - name: Flyway Migrate
-        run: flyway -email=${{ env.EMAIL }} -token=${{ secrets.FLYWAY_TOKEN }} migrate -url="${{ vars.DB_SERVER }};databaseName=${{ vars.DB_NAME_QA }};encrypt=${{ vars.ENCRYPT_BOOL }};integratedSecurity=true;trustServerCertificate=${{ vars.TRUST_CERT_BOOL }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
+        run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} migrate -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_QA }};encrypt=${{ env.ENCRYPT }};integratedSecurity=true;trustServerCertificate=${{ env.TRUST_CERT }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
         working-directory: ./migrations
-        # -baselineVersion=${{ vars.BASELINE_VERSION }}
-        # -user=${{ vars.DB_USER_NAME_QA }} -password=${{ secrets.DB_USER_PW_QA }}
+        # -baselineVersion=${{ env.BASELINE_VERSION }}
+        # -user=${{ env.DB_USER_QA }} -password=${{ env.DB_USER_PW_QA }}
