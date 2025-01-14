@@ -35,7 +35,8 @@ jobs:
           ref: "main" # Branch to check out
 
       - name: Flyway Migrate # Step to run Flyway migrations
-        run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} migrate -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_QA }};encrypt=${{ env.ENCRYPT }};integratedSecurity=true;trustServerCertificate=${{ env.TRUST_CERT }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
+        run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} migrate -user=${{ env.DB_USER_QA }} -password=${{ env.DB_USER_PW_QA }} -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_QA }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
         working-directory: ./migrations
+        # -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_QA }};encrypt=${{ env.ENCRYPT }};integratedSecurity=true;trustServerCertificate=${{ env.TRUST_CERT }}"
         # -baselineVersion=${{ env.BASELINE_VERSION }}
         # -user=${{ env.DB_USER_QA }} -password=${{ env.DB_USER_PW_QA }}
