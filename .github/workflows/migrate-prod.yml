@@ -4,6 +4,8 @@ on:
     branches:
       - "main"
 
+env:
+  EMAIL: ${{ vars.USER_EMAIL }} #example call within jobs ${{ env.EMAIL }}
 # on:
 #   push:
 #     paths:
@@ -17,7 +19,7 @@ on:
 
 #   # JDBC connection string properties
 #   JDBC_HOST: ${{ secrets.DB_HOST }}
-   EMAIL: ${{ vars.USER_EMAIL }} #example call within jobs ${{ env.EMAIL }}
+
 
 jobs:
   flyway-migrate:
