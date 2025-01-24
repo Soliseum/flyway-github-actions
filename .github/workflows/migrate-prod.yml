@@ -1,8 +1,8 @@
 name: Flyway GitHub Actions SQL Server Workflow # Workflow name
-on: 
-  push: 
-    branches: 
-      - "main" # Trigger workflow on push to main branch
+on:
+  push:
+    paths:
+    - 'migrations/**'
 
 # Environment Variables
 env:
