@@ -2,7 +2,7 @@ name: Flyway GitHub Actions Production Workflow # Workflow name
 on:
   push:
     branches:
-      - production
+      - Production
     paths:
     - 'migrations/**'
 
