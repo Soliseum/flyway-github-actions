@@ -26,7 +26,7 @@ env:
 
 # jobs are the steps executed in the workflow
 jobs:
-    flyway-migrate: # Job name
+    flyway-build: # Job name
       runs-on: self-hosted # Runner to execute the job
       # runs-on: ubuntu-latest
       defaults:
@@ -37,12 +37,17 @@ jobs:
         - uses: actions/checkout@v4 # Check out the repository
           with: # Additional options for the action
             ref: "development" # Branch to check out
+
+        # Runs the Flyway Clean command against the Build database
+        - name: Clean Build DB
+          run: |
+            flyway -baselineOnMigrate="true" -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} info clean info -cleanDisabled="false" -user=${{ env.DB_USER_Build }} -password=${{ env.DB_USER_PW_Build }} -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_Build }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
   
-        - name: Flyway Migrate # Step to run Flyway migrations
+        - name: Migrate Build # Step to run Flyway migrations
           # To use username and password instead of windows integrated security Ensure that SQL Server is configured to allow SQL Server authentication. You can check this in SQL Server Management Studio (SSMS) under the server properties -> Security -> Server authentication. Ensure "SQL Server and Windows Authentication mode" is selected.
-          run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} migrate -user=${{ env.DB_USER_QA }} -password=${{ env.DB_USER_PW_QA }} -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_QA }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
+          run: flyway -baselineOnMigrate="true" -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} migrate -user=${{ env.DB_USER_Build }} -password=${{ env.DB_USER_PW_Build }} -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_Build }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
           working-directory: ./migrations
-          # Sample for integrated security instead of user name and password
-          # -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_QA }};encrypt=${{ env.ENCRYPT }};integratedSecurity=true;trustServerCertificate=${{ env.TRUST_CERT }}"
-          # -baselineVersion=${{ env.BASELINE_VERSION }}
-          # -user=${{ env.DB_USER_QA }} -password=${{ env.DB_USER_PW_QA }}
+        
+        - name: Migrate Build # Step to run Flyway migrations
+          run: flyway -baselineOnMigrate="true" -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} undo -user=${{ env.DB_USER_Build }} -password=${{ env.DB_USER_PW_Build }} -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_Build }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -target="${{ env.FIRST_UNDO_SCRIPT }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
+          working-directory: ./migrations
