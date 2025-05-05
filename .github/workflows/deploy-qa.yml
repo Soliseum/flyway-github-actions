@@ -12,11 +12,10 @@ env:
   DB_QA: ${{ vars.DB_NAME_QA }}
   ENCRYPT: ${{ vars.ENCRYPT_BOOL }}
   TRUST_CERT: ${{ vars.TRUST_CERT_BOOL }}
-  # BASELINE_VERSION: ${{ vars.BASELINE_VERSION }}
-  
-   TOKEN: ${{ secrets.FLYWAY_TOKEN }} 
+  TOKEN: ${{ secrets.FLYWAY_TOKEN }} 
   DB_USER_QA: ${{ secrets.DB_USER_NAME_QA }}
   DB_USER_PW_QA: ${{ secrets.DB_USER_PW_QA }}
+  # BASELINE_VERSION: ${{ vars.BASELINE_VERSION }}
   # FIRST_UNDO_SCRIPT: ${{ secrets.FIRST_UNDO_SCRIPT }} 
 
 
