@@ -30,7 +30,7 @@ jobs:
     steps: # Steps are the individual tasks that are executed in the job
       - uses: actions/checkout@v4 # Check out the repository
         with: # Additional options for the action
-          ref: "main" # Branch to check out
+          ref: "QA" # Branch to check out
 
       - name: Deploy to QA # Step to run Flyway migrations
         # To use username and password instead of windows integrated security Ensure that SQL Server is configured to allow SQL Server authentication. You can check this in SQL Server Management Studio (SSMS) under the server properties -> Security -> Server authentication. Ensure "SQL Server and Windows Authentication mode" is selected.

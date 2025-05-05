@@ -36,7 +36,7 @@ jobs:
       steps: # Steps are the individual tasks that are executed in the job
         - uses: actions/checkout@v4 # Check out the repository
           with: # Additional options for the action
-            ref: "development" # Branch to check out
+            ref: "Development" # Branch to check out
 
         # Runs the Flyway Clean command against the Build database
         - name: Clean Build DB
