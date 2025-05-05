@@ -52,6 +52,6 @@ jobs:
           run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} migrate -cleanDisabled="false" -user=${{ env.DB_USER_Build }} -password=${{ env.DB_USER_PW_Build }} -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_Build }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
           working-directory: ./migrations
         
-        - name: Migrate Build # Step to run Flyway migrations
+        - name: Rollback Build # Step to run Flyway migrations
           run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} undo -cleanDisabled="false" -user=${{ env.DB_USER_Build }} -password=${{ env.DB_USER_PW_Build }} -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_Build }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -target="${{ env.FIRST_UNDO_SCRIPT }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
           working-directory: ./migrations
