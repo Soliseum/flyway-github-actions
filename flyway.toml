@@ -13,7 +13,7 @@ validateMigrationNaming = true
   majorTolerance = 0
 
 [flyway.plugins.clean]
-mode = "all"
+mode = "default"
 
 [flywayDesktop]
 developmentEnvironment = "development"
