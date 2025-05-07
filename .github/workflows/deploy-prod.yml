@@ -76,11 +76,10 @@ jobs:
       - name: Deploy to Prod 1 # Step to run Flyway migrations
       # To use username and password instead of windows integrated security Ensure that SQL Server is configured to allow SQL Server authentication. You can check this in SQL Server Management Studio (SSMS) under the server properties -> Security -> Server authentication. Ensure "SQL Server and Windows Authentication mode" is selected.
         run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} migrate -user=${{ env.DB_USER_PROD }} -password=${{ env.DB_USER_PW_PROD }} -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_PROD_1 }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
-        # Multi-tenant deployment. Add second deployment to PROD2 here
         working-directory: ./migrations
 
+# Multi-tenant deployment. PROD 2
       - name: Deploy to Prod 2 # Step to run Flyway migrations
-      # To use username and password instead of windows integrated security Ensure that SQL Server is configured to allow SQL Server authentication. You can check this in SQL Server Management Studio (SSMS) under the server properties -> Security -> Server authentication. Ensure "SQL Server and Windows Authentication mode" is selected.
         run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} info migrate info -user=${{ env.DB_USER_PROD }} -password=${{ env.DB_USER_PW_PROD }} -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_PROD_2 }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
         # Multi-tenant deployment. Add second deployment to PROD2 here
         working-directory: ./migrations
