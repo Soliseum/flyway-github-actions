@@ -33,7 +33,7 @@ env:
 # jobs are the steps executed in the workflow
 jobs:
   
-  flyway-report-prod:
+  flyway-report:
     name: Generate Report
     runs-on: self-hosted # Runner to execute the job
     defaults:
@@ -59,7 +59,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with: 
           name: flyway-reports
-          path: ./Artifact_Files/Reports/
+          path: reports\
 
 
   flyway-deploy-prod: 
@@ -67,6 +67,7 @@ jobs:
     defaults:
       run:
         shell: cmd # Default shell. Use Windows Command Prompt
+    needs: flyway-report # This job depends on the completion of the flyway-report job
 
     steps: # Steps are the individual tasks that are executed in the job
       - uses: actions/checkout@v4 # Check out the repository
