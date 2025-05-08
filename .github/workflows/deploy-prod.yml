@@ -47,22 +47,37 @@ jobs:
 
       - name: Create Drift and Change Report
         run: |
-          flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} check -changes -drift -dryrun -cleanDisabled="false" -user=${{ env.DB_USER_PROD }} -password=${{ env.DB_USER_PW_PROD }} -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_PROD_2 }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -check.buildUser=${{ env.DB_USER_PROD }} -check.buildPassword=${{ env.DB_USER_PW_PROD }} -check.buildUrl="${{ env.DB_SERVER }};databaseName=${{ env.DB_CHECK }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -reportFilename="${{ github.workspace }}\reports\${{ env.DB_PROD_2 }}-Run-${{ github.run_id }}-Check-Report.html" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}\migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
+          flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} check -code -changes -drift -dryrun -cleanDisabled="false" -user=${{ env.DB_USER_PROD }} -password=${{ env.DB_USER_PW_PROD }} -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_PROD_2 }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -check.buildUser=${{ env.DB_USER_PROD }} -check.buildPassword=${{ env.DB_USER_PW_PROD }} -check.buildUrl="${{ env.DB_SERVER }};databaseName=${{ env.DB_CHECK }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -reportFilename="${{ github.workspace }}\reports\${{ env.DB_PROD_2 }}-Run-${{ github.run_id }}-Check-Report.html" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}\migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
         continue-on-error: true
 
       # Create a directory to stage the artifact files
       - name: Stage files for publishing
         run: |
-          xcopy /E /I "C:\Projects\DemoDB\reports" "reports\"
+          xcopy /E /I "C:\Projects\DemoDB\reports" "reports/"
 
       - name: Publish Check Report as Artifact
         uses: actions/upload-artifact@v4
         with: 
           name: flyway-reports
-          path: reports\
+          path: reports/
+  
 
+  # manual-approval:
+  #   name: Manual Approval Step
+  #   runs-on: self-hosted # Runner to execute the job
+  #   needs: flyway-report # This job depends on the completion of the flyway-report job
 
+  #   steps:
+  #     - name: Await Manual Approval
+  #       run: echo "Waiting for manual approval..."
+  #       shell: bash
+  #       env:
+  #         GITHUB_ACTIONS_MANUAL_APPROVAL: true
+  # Add below flyway-deploy-prod needs: manual-approval
+
+  # Separate Prod 1 and Prod 2 into separate simulatneous jobs, only make one of them dependent on the manual approval step for demo purposes
   flyway-deploy-prod: 
+    name: Flyway Deploy Production
     runs-on: self-hosted # Runner to execute the job
     defaults:
       run:
@@ -74,13 +89,13 @@ jobs:
         with: # Additional options for the action
           ref: "Production" # Branch to check out
 
-      - name: Deploy to Prod 1 # Step to run Flyway migrations
+      - name: Deploy Prod 1 # Step to run Flyway migrations
       # To use username and password instead of windows integrated security Ensure that SQL Server is configured to allow SQL Server authentication. You can check this in SQL Server Management Studio (SSMS) under the server properties -> Security -> Server authentication. Ensure "SQL Server and Windows Authentication mode" is selected.
         run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} migrate -user=${{ env.DB_USER_PROD }} -password=${{ env.DB_USER_PW_PROD }} -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_PROD_1 }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
         working-directory: ./migrations
 
 # Multi-tenant deployment. PROD 2
-      - name: Deploy to Prod 2 # Step to run Flyway migrations
+      - name: Deploy Prod 2 # Step to run Flyway migrations
         run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} info migrate info -user=${{ env.DB_USER_PROD }} -password=${{ env.DB_USER_PW_PROD }} -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_PROD_2 }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
         # Multi-tenant deployment. Add second deployment to PROD2 here
         working-directory: ./migrations
