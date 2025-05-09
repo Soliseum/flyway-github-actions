@@ -2,7 +2,6 @@ SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
 GO
--- === STORED PROCEDURES ===
 
 -- Insert Client
 CREATE PROCEDURE [dbo].[sp_InsertClient]
