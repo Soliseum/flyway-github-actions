@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - Development
-    paths:
-    - 'migrations/**'
+    # paths:
+    # - 'migrations/**'
 
 # Environment Variables
 env:
@@ -32,7 +32,6 @@ jobs:
       defaults:
         run:
           shell: cmd # Default shell. Use Windows Command Prompt
-  
       steps: # Steps are the individual tasks that are executed in the job
         - name: Checkout Repository # Step to check out the repository
           uses: actions/checkout@v4
