@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - Development
-    # paths:
-    # - 'migrations/**'
+    paths:
+    - 'migrations/**'
 
 # Environment Variables
 env:
