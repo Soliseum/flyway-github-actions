@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - Development
-    paths:
-    - 'migrations/**'
+    # paths:
+    # - 'migrations/**'
 
 # Environment Variables
 env:
@@ -26,13 +26,24 @@ env:
 
 # jobs are the steps executed in the workflow
 jobs:
+    manual-approval:
+      name: Manual Approval Step
+      runs-on: self-hosted # Runner to execute the job
+      
+      steps:
+        - name: Await Manual Approval
+          run: echo "Waiting for manual approval..."
+          shell: cmd
+          env:
+            GITHUB_ACTIONS_MANUAL_APPROVAL: true
+
     flyway-build: # Job name
       runs-on: self-hosted # Runner to execute the job
       # runs-on: ubuntu-latest
       defaults:
         run:
           shell: cmd # Default shell. Use Windows Command Prompt
-  
+      needs: manual-approval # This job depends on the completion of the manual-approval job
       steps: # Steps are the individual tasks that are executed in the job
         - name: Checkout Repository # Step to check out the repository
           uses: actions/checkout@v4
