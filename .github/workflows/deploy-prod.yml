@@ -62,22 +62,13 @@ jobs:
           path: reports/
   
 
-  # manual-approval:
-  #   name: Manual Approval Step
-  #   runs-on: self-hosted # Runner to execute the job
-  #   needs: flyway-report # This job depends on the completion of the flyway-report job
-
-  #   steps:
-  #     - name: Await Manual Approval
-  #       run: echo "Waiting for manual approval..."
-  #       shell: bash
-  #       env:
-  #         GITHUB_ACTIONS_MANUAL_APPROVAL: true
-  # Add below flyway-deploy-prod needs: manual-approval
+  # GitHub Actions doesn't natively support manual approval steps like some other CI/CD tools (e.g., Azure DevOps or GitLab). 
+  # You can achieve similar functionality using environments with required reviewers or by integrating external approval mechanisms.
+  # Alternatively maybe a Review Branch prior to pulling to Production or another downstream environment.
 
   # Separate Prod 1 and Prod 2 into separate simulatneous jobs, only make one of them dependent on the manual approval step for demo purposes
-  flyway-deploy-prod: 
-    name: Flyway Deploy Production
+  flyway-deploy-prod-1: 
+    name: Flyway Deploy Production 1
     runs-on: self-hosted # Runner to execute the job
     defaults:
       run:
@@ -94,6 +85,30 @@ jobs:
         run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} migrate -user=${{ env.DB_USER_PROD }} -password=${{ env.DB_USER_PW_PROD }} -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_PROD_1 }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
         working-directory: ./migrations
 
+# # Multi-tenant deployment. PROD 2
+#       - name: Deploy Prod 2 # Step to run Flyway migrations
+#         run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} info migrate info -user=${{ env.DB_USER_PROD }} -password=${{ env.DB_USER_PW_PROD }} -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_PROD_2 }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
+#         # Multi-tenant deployment. Add second deployment to PROD2 here
+#         working-directory: ./migrations
+
+#         # Sample for integrated security instead of user name and password
+#         # -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_PROD_1 }};encrypt=${{ env.ENCRYPT }};integratedSecurity=true;trustServerCertificate=${{ env.TRUST_CERT }}"
+#         # -baselineVersion=${{ env.BASELINE_VERSION }}
+#         # -user=${{ env.DB_USER_PROD }} -password=${{ env.DB_USER_PW_PROD }}
+  
+  flyway-deploy-prod-2: 
+    name: Flyway Deploy Production 2
+    runs-on: self-hosted # Runner to execute the job
+    defaults:
+      run:
+        shell: cmd # Default shell. Use Windows Command Prompt
+    needs: flyway-report # This job depends on the completion of the flyway-report job
+
+    steps: # Steps are the individual tasks that are executed in the job
+      - uses: actions/checkout@v4 # Check out the repository
+        with: # Additional options for the action
+          ref: "Production" # Branch to check out
+
 # Multi-tenant deployment. PROD 2
       - name: Deploy Prod 2 # Step to run Flyway migrations
         run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} info migrate info -user=${{ env.DB_USER_PROD }} -password=${{ env.DB_USER_PW_PROD }} -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_PROD_2 }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
@@ -104,3 +119,4 @@ jobs:
         # -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_PROD_1 }};encrypt=${{ env.ENCRYPT }};integratedSecurity=true;trustServerCertificate=${{ env.TRUST_CERT }}"
         # -baselineVersion=${{ env.BASELINE_VERSION }}
         # -user=${{ env.DB_USER_PROD }} -password=${{ env.DB_USER_PW_PROD }}
+      
