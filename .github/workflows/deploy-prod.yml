@@ -31,6 +31,7 @@ env:
   publishArtifacts: true
 
 # jobs are the steps executed in the workflow
+# Rules location -check.rulesLocation="$(Build.SourcesDirectory)\templates\rules"
 jobs:
   
   flyway-report:
