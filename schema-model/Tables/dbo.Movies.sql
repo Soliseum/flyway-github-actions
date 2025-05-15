@@ -4,6 +4,7 @@ CREATE TABLE [dbo].[Movies]
 [Title] [nvarchar] (50) NOT NULL,
 [Category] [nvarchar] (50) NOT NULL,
 [IMDB] [decimal] (6, 2) NULL,
-[Language] [nchar] (25) NULL
+[Language] [nchar] (25) NULL,
+[Details] [nvarchar] (250) NULL
 )
 GO
