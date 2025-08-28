@@ -29,33 +29,11 @@ filterFile = "filter.rgf"
   [redgateCompare.sqlserver]
   filterFile = "Filter.scpf"
 
-[redgateCompare.sqlserver.data.options.comparison]
-compressTemporaryFiles = false
-forceBinaryCollation = false
-treatEmptyStringAsNull = false
-trimTrailingWhiteSpace = false
-useChecksumComparison = false
-useMaxPrecisionForFloatComparison = false
-
-[redgateCompare.sqlserver.data.options.deployment]
-disableDdlTriggers = true
-disableDmlTriggers = false
-disableForeignKeys = false
-dontIncludeCommentsInScript = false
-dropPrimaryKeysIndexesAndUniqueConstraints = false
-reseedIdentityColumns = false
-skipIntegrityChecksForForeignKeys = false
-transportClrDataTypesAsBinary = false
-
-[redgateCompare.sqlserver.data.options.mapping]
-includeTimestampColumns = false
-useCaseSensitiveObjectDefinition = true
-
 [redgateCompare.sqlserver.options.behavior]
 addCreateOrAlterForRerunnableScripts = false
 addDropAndCreateForRerunnableScripts = false
 addNoPopulationToFulltextIndexes = false
-addObjectExistenceChecks = false
+addObjectExistenceChecks = true
 addOnlineOnWhenCreatingIndexesOrAlteringColumns = false
 addWithEncryption = false
 considerNextFilegroupInPartitionSchemes = true
@@ -63,7 +41,7 @@ decryptEncryptedObjects = true
 disableAutoColumnMapping = false
 dontUseAlterAssemblyToChangeClrObjects = false
 forbidDuplicateTableStorageSettings = false
-forceColumnOrder = false
+forceColumnOrder = true
 ignoreMigrationScripts = false
 includeDependencies = true
 includeRoleExistenceChecks = true
@@ -118,3 +96,25 @@ ignoreWhiteSpace = true
 ignoreWithElementOrder = true
 ignoreWithEncryption = false
 ignoreWithNoCheck = true
+
+[redgateCompare.sqlserver.data.options.mapping]
+includeTimestampColumns = false
+useCaseSensitiveObjectDefinition = true
+
+[redgateCompare.sqlserver.data.options.comparison]
+compressTemporaryFiles = false
+forceBinaryCollation = false
+treatEmptyStringAsNull = false
+trimTrailingWhiteSpace = false
+useChecksumComparison = false
+useMaxPrecisionForFloatComparison = false
+
+[redgateCompare.sqlserver.data.options.deployment]
+disableDdlTriggers = true
+disableDmlTriggers = false
+disableForeignKeys = false
+dontIncludeCommentsInScript = false
+dropPrimaryKeysIndexesAndUniqueConstraints = false
+reseedIdentityColumns = false
+skipIntegrityChecksForForeignKeys = false
+transportClrDataTypesAsBinary = false
