@@ -4,13 +4,16 @@ name = "DemoDB"
 
 [flyway]
 defaultSchema = "dbo"
-locations = [ "filesystem:migrations" ]
+locations = ["filesystem:migrations"]
 mixed = true
 outOfOrder = true
 validateMigrationNaming = true
 
-  [flyway.check]
-  majorTolerance = 0
+[flyway.generate]
+timestamp = "always"
+
+[flyway.check]
+majorTolerance = 0
 
 [flyway.plugins.clean]
 mode = "default"
@@ -20,14 +23,14 @@ developmentEnvironment = "development"
 schemaModel = "schema-model"
 shadowEnvironment = "shadow"
 
-  [flywayDesktop.generate]
-  undoScripts = true
+[flywayDesktop.generate]
+undoScripts = true
 
 [redgateCompare]
 filterFile = "filter.rgf"
 
-  [redgateCompare.sqlserver]
-  filterFile = "Filter.scpf"
+[redgateCompare.sqlserver]
+filterFile = "Filter.scpf"
 
 [redgateCompare.sqlserver.options.behavior]
 addCreateOrAlterForRerunnableScripts = false
