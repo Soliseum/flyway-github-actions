@@ -10,21 +10,17 @@ on:
 env:
   # Repository Variables - Create these in Project Settings > Variables > Actions
   EMAIL: ${{ vars.USER_EMAIL }} # Use with ${{ env.EMAIL }}
-  DB_SERVER: ${{ vars.DB_SERVER }}
-  DB_CHECK: ${{ vars.DB_NAME_CHECK }}
-  DB_PROD_1: ${{ vars.DB_NAME_PROD_1 }}
-  DB_PROD_2: ${{ vars.DB_NAME_PROD_2 }}
-  ENCRYPT: ${{ vars.ENCRYPT_BOOL }}
-  TRUST_CERT: ${{ vars.TRUST_CERT_BOOL }}
-  # BASELINE_VERSION: ${{ vars.BASELINE_VERSION }}
+  JDBC_PROD1: ${{ vars.JDBC_PROD1 }}
+  JDBC_PROD2: ${{ vars.JDBC_PROD2 }}
+  JDBC_CHECK: ${{ vars.JDBC_CHECK }}
+  DB_PROD_2: ${{ vars.DB_NAME_PROD_2 }} # Used in report filename
 
   # Repository Secrets - Create these in Project Settings > Secrets > Actions
   TOKEN: ${{ secrets.FLYWAY_TOKEN }}
   DB_USER_PROD: ${{ secrets.DB_USER_NAME_QA }}
   DB_USER_PW_PROD: ${{ secrets.DB_USER_PW_QA }}
-  # FIRST_UNDO_SCRIPT: ${{ secrets.FIRST_UNDO_SCRIPT }} # Validates all undo scripts up to and including the specified script
-
   # End of Environment Secrets #
+
   generateDriftAndChangeReport: true
   failReleaseIfDriftDetected: false
   staticCodeAnalysis: false #Currently not setup in this pipeline
@@ -47,7 +43,7 @@ jobs:
 
       - name: Create Drift and Change Report
         run: |
-          flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} check -code -changes -drift -dryrun -cleanDisabled="false" -user=${{ env.DB_USER_PROD }} -password=${{ env.DB_USER_PW_PROD }} -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_PROD_2 }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -check.buildUser=${{ env.DB_USER_PROD }} -check.buildPassword=${{ env.DB_USER_PW_PROD }} -check.buildUrl="${{ env.DB_SERVER }};databaseName=${{ env.DB_CHECK }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -reportFilename="${{ github.workspace }}\reports\${{ env.DB_PROD_2 }}-Run-${{ github.run_id }}-Check-Report.html" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}\migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
+          flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} check -code -changes -drift -dryrun -cleanDisabled="false" -user=${{ env.DB_USER_PROD }} -password=${{ env.DB_USER_PW_PROD }} -url=${{ env.JDBC_PROD2 }} -check.buildUser=${{ env.DB_USER_PROD }} -check.buildPassword=${{ env.DB_USER_PW_PROD }} -check.buildUrl="${{ env.JDBC_CHECK }}" -reportFilename="${{ github.workspace }}\reports\${{ env.DB_PROD_2 }}-Run-${{ github.run_id }}-Check-Report.html" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}\migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
         continue-on-error: true
 
       # Create a directory to stage the artifact files
@@ -81,7 +77,7 @@ jobs:
 
       - name: Deploy Prod 1 # Step to run Flyway migrations
         # To use username and password instead of windows integrated security Ensure that SQL Server is configured to allow SQL Server authentication. You can check this in SQL Server Management Studio (SSMS) under the server properties -> Security -> Server authentication. Ensure "SQL Server and Windows Authentication mode" is selected.
-        run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} migrate -user=${{ env.DB_USER_PROD }} -password=${{ env.DB_USER_PW_PROD }} -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_PROD_1 }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
+        run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} migrate -user=${{ env.DB_USER_PROD }} -password=${{ env.DB_USER_PW_PROD }} -url="${{ env.JDBC_PROD1 }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
         working-directory: ./migrations
 
   flyway-deploy-prod-2:
@@ -99,11 +95,11 @@ jobs:
 
       # Multi-tenant deployment. PROD 2
       - name: Deploy Prod 2 # Step to run Flyway migrations
-        run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} info migrate info -user=${{ env.DB_USER_PROD }} -password=${{ env.DB_USER_PW_PROD }} -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_PROD_2 }};encrypt=${{ env.ENCRYPT }};trustServerCertificate=${{ env.TRUST_CERT }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
+        run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} info migrate info -user=${{ env.DB_USER_PROD }} -password=${{ env.DB_USER_PW_PROD }} -url="${{ env.JDBC_PROD2 }}" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
         # Multi-tenant deployment. Add second deployment to PROD2 here
         working-directory: ./migrations
 
         # Sample for integrated security instead of user name and password
-        # -url="${{ env.DB_SERVER }};databaseName=${{ env.DB_PROD_1 }};encrypt=${{ env.ENCRYPT }};integratedSecurity=true;trustServerCertificate=${{ env.TRUST_CERT }}"
+        # -url="jdbc:sqlserver://localhost;databaseName=DemoDBProd1;integratedSecurity=true;trustServerCertificate=true"
         # -baselineVersion=${{ env.BASELINE_VERSION }}
         # -user=${{ env.DB_USER_PROD }} -password=${{ env.DB_USER_PW_PROD }}
