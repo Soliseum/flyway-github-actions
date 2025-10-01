@@ -6,7 +6,8 @@ CREATE TABLE [dbo].[Clients]
 [Phone] [nvarchar] (20) NULL,
 [CreatedAt] [datetime] NULL CONSTRAINT [DF__Clients__Created__50FB042B] DEFAULT (getdate()),
 [Status] [nvarchar] (20) NULL CONSTRAINT [DF__Clients__Status__65F62111] DEFAULT ('Active'),
-[LastUpdated] [datetime] NULL
+[LastUpdated] [datetime] NULL,
+[Test] [nchar] (10) NULL
 )
 GO
 ALTER TABLE [dbo].[Clients] ADD CONSTRAINT [PK__Clients__E67E1A04441DC184] PRIMARY KEY CLUSTERED ([ClientID])
