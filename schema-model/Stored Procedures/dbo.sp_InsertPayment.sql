@@ -3,7 +3,7 @@ GO
 SET ANSI_NULLS ON
 GO
 
--- Updated InsertPayment
+-- Update stored procedure: sp_InsertPayment
 CREATE PROCEDURE [dbo].[sp_InsertPayment]
     @ClientID INT,
     @Amount DECIMAL(10,2),
@@ -13,13 +13,31 @@ CREATE PROCEDURE [dbo].[sp_InsertPayment]
     @TransactionReference NVARCHAR(100)
 AS
 BEGIN
+    SET NOCOUNT ON;
+
+    -- Validate input
     IF @Amount <= 0
     BEGIN
         RAISERROR('Amount must be greater than zero.', 16, 1);
         RETURN;
     END
 
-    INSERT INTO Payments (ClientID, Amount, PaymentDate, Method, Currency, TransactionReference)
-    VALUES (@ClientID, @Amount, @PaymentDate, @Method, @Currency, @TransactionReference);
+    -- Insert payment record
+    INSERT INTO [dbo].[Payments] (
+        ClientID,
+        Amount,
+        PaymentDate,
+        Method,
+        Currency,
+        TransactionReference
+    )
+    VALUES (
+        @ClientID,
+        @Amount,
+        @PaymentDate,
+        @Method,
+        @Currency,
+        @TransactionReference
+    );
 END;
 GO
