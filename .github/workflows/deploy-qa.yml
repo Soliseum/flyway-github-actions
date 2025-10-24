@@ -10,7 +10,7 @@ env:
   # Variables - Create these in Project Settings > Variables > Actions
   EMAIL: ${{ vars.USER_EMAIL }}
   JDBC_QA: ${{ vars.JDBC_QA }}
-  # Sectrets - Create these in Project Settings > Secrets > Actions
+  # Secrets - Create these in Project Settings > Secrets > Actions
   TOKEN: ${{ secrets.FLYWAY_TOKEN }}
   DB_USER_QA: ${{ secrets.DB_USER_NAME_QA }}
   DB_USER_PW_QA: ${{ secrets.DB_USER_PW_QA }}
