@@ -42,7 +42,7 @@ jobs:
 
       - name: Migrate Build # Step to run Flyway migrations
         # To use username and password instead of windows integrated security Ensure that SQL Server is configured to allow SQL Server authentication. You can check this in SQL Server Management Studio (SSMS) under the server properties -> Security -> Server authentication. Ensure "SQL Server and Windows Authentication mode" is selected.
-        run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} migrate -cleanDisabled="false" -environments.target.user=${{ env.DB_USER_BUILD }} -environments.target.password=${{ env.DB_USER_PW_BUILD }} -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
+        run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} migrate -cleanDisabled="false" -environments.target.user=${{ env.DB_USER_BUILD }} -environments.target.password=${{ env.DB_USER_PW_BUILD }} -environments.target.url=${{ env.JDBC_BUILD }} -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
         working-directory: ./migrations
 
       - name: Rollback Build # Step to run Flyway migrations
