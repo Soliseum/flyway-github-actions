@@ -3,21 +3,20 @@ on:
   push:
     branches:
       - Development
-    paths:
-      - "migrations/**"
+    # paths:
+    #   - "migrations/**"
 
 # Environment Variables
 env:
   # Repository Variables - Create these in Project Settings > Variables > Actions
   EMAIL: ${{ vars.USER_EMAIL }} # Use with ${{ env.EMAIL }}
-  # DB_SERVER: ${{ vars.DB_SERVER }} # DB_Build: ${{ vars.DB_NAME_Build }} # ENCRYPT: ${{ vars.ENCRYPT_BOOL }} # TRUST_CERT: ${{ vars.TRUST_CERT_BOOL }}
   JDBC_BUILD: ${{ vars.JDBC_BUILD }}
   # BASELINE_VERSION: ${{ vars.BASELINE_VERSION }}
 
   # Repository Secrets - Create these in Project Settings > Secrets > Actions
   TOKEN: ${{ secrets.FLYWAY_TOKEN }}
-  DB_USER_Build: ${{ secrets.DB_USER_NAME_QA }}
-  DB_USER_PW_Build: ${{ secrets.DB_USER_PW_QA }}
+  DB_USER_BUILD: ${{ secrets.DB_USER_NAME_QA }}
+  DB_USER_PW_BUILD: ${{ secrets.DB_USER_PW_QA }}
   FIRST_UNDO_SCRIPT: ${{ secrets.FIRST_UNDO_SCRIPT }} # Validates all undo scripts up to and including the specified script
 
 # jobs are the steps executed in the workflow
