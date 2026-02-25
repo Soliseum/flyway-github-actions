@@ -43,7 +43,7 @@ jobs:
 
       - name: Create Drift and Change Report
         run: |
-          flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} check -code -changes -drift -dryrun -cleanDisabled="false" -environments.target.user=${{ env.DB_USER_PROD }} -environments.target.password=${{ env.DB_USER_PW_PROD }} -environments.target.url=${{ env.JDBC_PROD2 }} -enviroments.check.user=${{ env.DB_USER_PROD }} -enviroments.check.password=${{ env.DB_USER_PW_PROD }} -environments.check.url="${{ env.JDBC_CHECK }}" -check.buildEnvironment="check" -reportFilename="${{ github.workspace }}\reports\${{ env.DB_PROD_2 }}-Run-${{ github.run_id }}-Check-Report.html" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}\migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
+          flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} check -code -changes -drift -dryrun -cleanDisabled="false" -user=${{ env.DB_USER_PROD }} -password=${{ env.DB_USER_PW_PROD }} -url=${{ env.JDBC_PROD2 }} -enviroments.check.user=${{ env.DB_USER_PROD }} -enviroments.check.password=${{ env.DB_USER_PW_PROD }} -environments.check.url="${{ env.JDBC_CHECK }}" -check.buildEnvironment="check" -reportFilename="${{ github.workspace }}\reports\${{ env.DB_PROD_2 }}-Run-${{ github.run_id }}-Check-Report.html" -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}\migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
         continue-on-error: true
 
       # Create a directory to stage the artifact files
