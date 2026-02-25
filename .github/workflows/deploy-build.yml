@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - Development
-    paths:
-      - "migrations/**"
+    # paths:
+    #   - "migrations/**"
 
 # Environment Variables
 env:
@@ -15,8 +15,8 @@ env:
 
   # Repository Secrets - Create these in Project Settings > Secrets > Actions
   TOKEN: ${{ secrets.FLYWAY_TOKEN }}
-  DB_USER_Build: ${{ secrets.DB_USER_NAME_QA }}
-  DB_USER_PW_Build: ${{ secrets.DB_USER_PW_QA }}
+  DB_USER_BUILD: ${{ secrets.DB_USER_NAME_QA }}
+  DB_USER_PW_BUILD: ${{ secrets.DB_USER_PW_QA }}
   FIRST_UNDO_SCRIPT: ${{ secrets.FIRST_UNDO_SCRIPT }} # Validates all undo scripts up to and including the specified script
 
 # jobs are the steps executed in the workflow
