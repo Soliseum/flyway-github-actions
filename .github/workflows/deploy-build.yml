@@ -58,8 +58,9 @@ jobs:
       - name: Clean Build DB
         run: |
           $script = @"
+          WINDOWS_HOST=$(ip route show | awk '/default/{print $3}')
           docker run --rm \
-            --add-host host.docker.internal:host-gateway \
+            --add-host host.docker.internal:${WINDOWS_HOST} \
             -e FLYWAY_EMAIL="${{ env.EMAIL }}" \
             -e FLYWAY_TOKEN="${{ env.TOKEN }}" \
             -e FLYWAY_USER="${{ env.DB_USER_BUILD }}" \
@@ -83,8 +84,9 @@ jobs:
       - name: Migrate Build # Step to run Flyway migrations
         run: |
           $script = @"
+          WINDOWS_HOST=$(ip route show | awk '/default/{print $3}')
           docker run --rm \
-            --add-host host.docker.internal:host-gateway \
+            --add-host host.docker.internal:${WINDOWS_HOST} \
             -e FLYWAY_EMAIL="${{ env.EMAIL }}" \
             -e FLYWAY_TOKEN="${{ env.TOKEN }}" \
             -e FLYWAY_USER="${{ env.DB_USER_BUILD }}" \
@@ -108,8 +110,9 @@ jobs:
       - name: Rollback Build # Step to run Flyway undo migrations
         run: |
           $script = @"
+          WINDOWS_HOST=$(ip route show | awk '/default/{print $3}')
           docker run --rm \
-            --add-host host.docker.internal:host-gateway \
+            --add-host host.docker.internal:${WINDOWS_HOST} \
             -e FLYWAY_EMAIL="${{ env.EMAIL }}" \
             -e FLYWAY_TOKEN="${{ env.TOKEN }}" \
             -e FLYWAY_USER="${{ env.DB_USER_BUILD }}" \
