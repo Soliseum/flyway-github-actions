@@ -45,18 +45,20 @@ jobs:
           echo "WSL_WORKSPACE=$wslPath" >> $env:GITHUB_ENV
 
       - name: Validate Docker runtime and pull Flyway image
-        shell: wsl-bash {0}
         run: |
+          @"
           docker --version
           docker info
           docker pull "${{ env.FLYWAY_DOCKER_IMAGE }}"
+          "@ | wsl bash
 
       # Runs the Flyway Clean command against the Build database
       - name: Clean Build DB
-        shell: wsl-bash {0}
         run: |
+          # Pipe the bash script to wsl bash to avoid PowerShell argument-passing issues with wsl docker.
           # --add-host makes host.docker.internal resolve to the WSL2 host gateway,
           # allowing the container to reach SQL Server running on the Windows machine.
+          @"
           docker run --rm \
             --add-host host.docker.internal:host-gateway \
             -e FLYWAY_EMAIL="${{ env.EMAIL }}" \
@@ -64,8 +66,8 @@ jobs:
             -e FLYWAY_USER="${{ env.DB_USER_BUILD }}" \
             -e FLYWAY_PASSWORD="${{ env.DB_USER_PW_BUILD }}" \
             -e FLYWAY_URL="${{ env.JDBC_BUILD }}" \
-            -v "$WSL_WORKSPACE/migrations:/flyway/sql" \
-            -v "$WSL_WORKSPACE/flyway.toml:/flyway/conf/flyway.toml" \
+            -v "${{ env.WSL_WORKSPACE }}/migrations:/flyway/sql" \
+            -v "${{ env.WSL_WORKSPACE }}/flyway.toml:/flyway/conf/flyway.toml" \
             "${{ env.FLYWAY_DOCKER_IMAGE }}" \
             info clean info \
             -cleanDisabled="false" \
@@ -74,10 +76,11 @@ jobs:
             -configFiles="/flyway/conf/flyway.toml" \
             -baselineOnMigrate=true \
             -errorOverrides=S0001:0:I-
+          "@ | wsl bash
 
       - name: Migrate Build # Step to run Flyway migrations
-        shell: wsl-bash {0}
         run: |
+          @"
           docker run --rm \
             --add-host host.docker.internal:host-gateway \
             -e FLYWAY_EMAIL="${{ env.EMAIL }}" \
@@ -85,8 +88,8 @@ jobs:
             -e FLYWAY_USER="${{ env.DB_USER_BUILD }}" \
             -e FLYWAY_PASSWORD="${{ env.DB_USER_PW_BUILD }}" \
             -e FLYWAY_URL="${{ env.JDBC_BUILD }}" \
-            -v "$WSL_WORKSPACE/migrations:/flyway/sql" \
-            -v "$WSL_WORKSPACE/flyway.toml:/flyway/conf/flyway.toml" \
+            -v "${{ env.WSL_WORKSPACE }}/migrations:/flyway/sql" \
+            -v "${{ env.WSL_WORKSPACE }}/flyway.toml:/flyway/conf/flyway.toml" \
             "${{ env.FLYWAY_DOCKER_IMAGE }}" \
             migrate \
             -cleanDisabled="false" \
@@ -95,10 +98,11 @@ jobs:
             -configFiles="/flyway/conf/flyway.toml" \
             -baselineOnMigrate=true \
             -errorOverrides=S0001:0:I-
+          "@ | wsl bash
 
       - name: Rollback Build # Step to run Flyway undo migrations
-        shell: wsl-bash {0}
         run: |
+          @"
           docker run --rm \
             --add-host host.docker.internal:host-gateway \
             -e FLYWAY_EMAIL="${{ env.EMAIL }}" \
@@ -106,8 +110,8 @@ jobs:
             -e FLYWAY_USER="${{ env.DB_USER_BUILD }}" \
             -e FLYWAY_PASSWORD="${{ env.DB_USER_PW_BUILD }}" \
             -e FLYWAY_URL="${{ env.JDBC_BUILD }}" \
-            -v "$WSL_WORKSPACE/migrations:/flyway/sql" \
-            -v "$WSL_WORKSPACE/flyway.toml:/flyway/conf/flyway.toml" \
+            -v "${{ env.WSL_WORKSPACE }}/migrations:/flyway/sql" \
+            -v "${{ env.WSL_WORKSPACE }}/flyway.toml:/flyway/conf/flyway.toml" \
             "${{ env.FLYWAY_DOCKER_IMAGE }}" \
             undo \
             -cleanDisabled="false" \
@@ -117,3 +121,4 @@ jobs:
             -configFiles="/flyway/conf/flyway.toml" \
             -baselineOnMigrate=true \
             -errorOverrides=S0001:0:I-
+          "@ | wsl bash
