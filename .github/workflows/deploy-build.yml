@@ -47,15 +47,15 @@ jobs:
       - name: Validate Docker runtime and pull Flyway image
         run: |
           @"
-          docker --version
+          docker version
           docker info
           docker pull "${{ env.FLYWAY_DOCKER_IMAGE }}"
-          "@ | wsl bash
+          "@ -replace "`r`n", "`n" | wsl bash
 
       # Runs the Flyway Clean command against the Build database
       - name: Clean Build DB
         run: |
-          # Pipe the bash script to wsl bash to avoid PowerShell argument-passing issues with wsl docker.
+          # PowerShell here-strings use CRLF; strip carriage returns before piping to wsl bash.
           # --add-host makes host.docker.internal resolve to the WSL2 host gateway,
           # allowing the container to reach SQL Server running on the Windows machine.
           @"
@@ -76,7 +76,7 @@ jobs:
             -configFiles="/flyway/conf/flyway.toml" \
             -baselineOnMigrate=true \
             -errorOverrides=S0001:0:I-
-          "@ | wsl bash
+          "@ -replace "`r`n", "`n" | wsl bash
 
       - name: Migrate Build # Step to run Flyway migrations
         run: |
@@ -98,7 +98,7 @@ jobs:
             -configFiles="/flyway/conf/flyway.toml" \
             -baselineOnMigrate=true \
             -errorOverrides=S0001:0:I-
-          "@ | wsl bash
+          "@ -replace "`r`n", "`n" | wsl bash
 
       - name: Rollback Build # Step to run Flyway undo migrations
         run: |
@@ -121,4 +121,4 @@ jobs:
             -configFiles="/flyway/conf/flyway.toml" \
             -baselineOnMigrate=true \
             -errorOverrides=S0001:0:I-
-          "@ | wsl bash
+          "@ -replace "`r`n", "`n" | wsl bash
