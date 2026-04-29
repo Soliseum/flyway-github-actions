@@ -11,7 +11,6 @@ env:
   # Repository Variables - Create these in Project Settings > Variables > Actions
   EMAIL: ${{ vars.USER_EMAIL }} # Use with ${{ env.EMAIL }}
   JDBC_BUILD: ${{ vars.JDBC_BUILD }}
-  FLYWAY_DOCKER_IMAGE: redgate/flyway:12.5.0 # Pinned image tag for reproducible runs
   # BASELINE_VERSION: ${{ vars.BASELINE_VERSION }}
 
   # Repository Secrets - Create these in Project Settings > Secrets > Actions
@@ -19,15 +18,15 @@ env:
   DB_USER_BUILD: ${{ secrets.DB_USER_NAME_QA }}
   DB_USER_PW_BUILD: ${{ secrets.DB_USER_PW_QA }}
   FIRST_UNDO_SCRIPT: ${{ secrets.FIRST_UNDO_SCRIPT }} # Validates all undo scripts up to and including the specified script
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 # jobs are the steps executed in the workflow
 jobs:
   flyway-build: # Job name
-    runs-on: self-hosted # Windows self-hosted runner invoking Docker Engine inside WSL2
+    runs-on: self-hosted # Runner to execute the job
+    # runs-on: ubuntu-latest
     defaults:
       run:
-        shell: pwsh
+        shell: cmd # Default shell. Use Windows Command Prompt
     steps: # Steps are the individual tasks that are executed in the job
       - name: Checkout Repository # Step to check out the repository
         uses: actions/checkout@v4
@@ -36,100 +35,16 @@ jobs:
           fetch-depth: 0 # Fetch the entire history to avoid shallow clone issues
           clean: true # Ensure the repository is cleaned before the workflow runs
 
-      # Convert the Windows workspace path to its WSL2 mount path (e.g. C:\foo -> /mnt/c/foo).
-      # wsl wslpath strips backslashes from PowerShell args, so we convert manually instead.
-      - name: Resolve WSL2 workspace path
-        run: |
-          $winPath = "${{ github.workspace }}"
-          $wslPath = "/mnt/" + $winPath[0].ToString().ToLower() + "/" + $winPath.Substring(3).Replace("\", "/")
-          echo "WSL_WORKSPACE=$wslPath" >> $env:GITHUB_ENV
-
-      # Simple single-line wsl docker calls avoid pipe/encoding issues for non-complex commands.
-      - name: Validate Docker runtime and pull Flyway image
-        run: |
-          wsl docker version
-          wsl docker info
-          wsl docker pull ${{ env.FLYWAY_DOCKER_IMAGE }}
-
-      # For docker run steps, write the bash script to a temp file with explicit LF line endings
-      # and execute it via wsl bash. This avoids PowerShell pipe CRLF encoding issues entirely.
-
       # Runs the Flyway Clean command against the Build database
       - name: Clean Build DB
         run: |
-          $script = @'
-          WINDOWS_HOST=$(ip route show | awk '/default/{print $3}')
-          docker run --rm \
-            --add-host host.docker.internal:${WINDOWS_HOST} \
-            -e FLYWAY_EMAIL="${{ env.EMAIL }}" \
-            -e FLYWAY_TOKEN="${{ env.TOKEN }}" \
-            -e FLYWAY_USER="${{ env.DB_USER_BUILD }}" \
-            -e FLYWAY_PASSWORD="${{ env.DB_USER_PW_BUILD }}" \
-            -e FLYWAY_URL="${{ env.JDBC_BUILD }}" \
-            -v "${{ env.WSL_WORKSPACE }}/migrations:/flyway/sql" \
-            -v "${{ env.WSL_WORKSPACE }}/flyway.toml:/flyway/conf/flyway.toml" \
-            "${{ env.FLYWAY_DOCKER_IMAGE }}" \
-            info clean info \
-            -cleanDisabled="false" \
-            -IAgreeToTheEula \
-            -locations="filesystem:/flyway/sql" \
-            -configFiles="/flyway/conf/flyway.toml" \
-            -baselineOnMigrate=true \
-            -errorOverrides=S0001:0:I-
-          '@ -replace "`r`n", "`n" -replace "`r", "`n"
-          $tmpFile = "${{ github.workspace }}\fw_clean.sh"
-          [System.IO.File]::WriteAllText($tmpFile, $script, [System.Text.UTF8Encoding]::new($false))
-          wsl bash "${{ env.WSL_WORKSPACE }}/fw_clean.sh"
+          flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} info clean info -cleanDisabled="false" -user=${{ env.DB_USER_Build }} -password=${{ env.DB_USER_PW_Build }} -url=${{ env.JDBC_BUILD }} -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
 
       - name: Migrate Build # Step to run Flyway migrations
-        run: |
-          $script = @'
-          WINDOWS_HOST=$(ip route show | awk '/default/{print $3}')
-          docker run --rm \
-            --add-host host.docker.internal:${WINDOWS_HOST} \
-            -e FLYWAY_EMAIL="${{ env.EMAIL }}" \
-            -e FLYWAY_TOKEN="${{ env.TOKEN }}" \
-            -e FLYWAY_USER="${{ env.DB_USER_BUILD }}" \
-            -e FLYWAY_PASSWORD="${{ env.DB_USER_PW_BUILD }}" \
-            -e FLYWAY_URL="${{ env.JDBC_BUILD }}" \
-            -v "${{ env.WSL_WORKSPACE }}/migrations:/flyway/sql" \
-            -v "${{ env.WSL_WORKSPACE }}/flyway.toml:/flyway/conf/flyway.toml" \
-            "${{ env.FLYWAY_DOCKER_IMAGE }}" \
-            migrate \
-            -cleanDisabled="false" \
-            -IAgreeToTheEula \
-            -locations="filesystem:/flyway/sql" \
-            -configFiles="/flyway/conf/flyway.toml" \
-            -baselineOnMigrate=true \
-            -errorOverrides=S0001:0:I-
-          '@ -replace "`r`n", "`n" -replace "`r", "`n"
-          $tmpFile = "${{ github.workspace }}\fw_migrate.sh"
-          [System.IO.File]::WriteAllText($tmpFile, $script, [System.Text.UTF8Encoding]::new($false))
-          wsl bash "${{ env.WSL_WORKSPACE }}/fw_migrate.sh"
+        # To use username and password instead of windows integrated security Ensure that SQL Server is configured to allow SQL Server authentication. You can check this in SQL Server Management Studio (SSMS) under the server properties -> Security -> Server authentication. Ensure "SQL Server and Windows Authentication mode" is selected.
+        run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} migrate -cleanDisabled="false" -user=${{ env.DB_USER_Build }} -password=${{ env.DB_USER_PW_Build }} -url=${{ env.JDBC_BUILD }} -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
+        working-directory: ./migrations
 
-      - name: Rollback Build # Step to run Flyway undo migrations
-        run: |
-          $script = @'
-          WINDOWS_HOST=$(ip route show | awk '/default/{print $3}')
-          docker run --rm \
-            --add-host host.docker.internal:${WINDOWS_HOST} \
-            -e FLYWAY_EMAIL="${{ env.EMAIL }}" \
-            -e FLYWAY_TOKEN="${{ env.TOKEN }}" \
-            -e FLYWAY_USER="${{ env.DB_USER_BUILD }}" \
-            -e FLYWAY_PASSWORD="${{ env.DB_USER_PW_BUILD }}" \
-            -e FLYWAY_URL="${{ env.JDBC_BUILD }}" \
-            -v "${{ env.WSL_WORKSPACE }}/migrations:/flyway/sql" \
-            -v "${{ env.WSL_WORKSPACE }}/flyway.toml:/flyway/conf/flyway.toml" \
-            "${{ env.FLYWAY_DOCKER_IMAGE }}" \
-            undo \
-            -cleanDisabled="false" \
-            -target=${{ env.FIRST_UNDO_SCRIPT }} \
-            -IAgreeToTheEula \
-            -locations="filesystem:/flyway/sql" \
-            -configFiles="/flyway/conf/flyway.toml" \
-            -baselineOnMigrate=true \
-            -errorOverrides=S0001:0:I-
-          '@ -replace "`r`n", "`n" -replace "`r", "`n"
-          $tmpFile = "${{ github.workspace }}\fw_rollback.sh"
-          [System.IO.File]::WriteAllText($tmpFile, $script, [System.Text.UTF8Encoding]::new($false))
-          wsl bash "${{ env.WSL_WORKSPACE }}/fw_rollback.sh"
+      - name: Rollback Build # Step to run Flyway migrations
+        run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} undo -cleanDisabled="false" -user=${{ env.DB_USER_Build }} -password=${{ env.DB_USER_PW_Build }} -url=${{ env.JDBC_BUILD }} -target=${{ env.FIRST_UNDO_SCRIPT }} -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
+        working-directory: ./migrations
