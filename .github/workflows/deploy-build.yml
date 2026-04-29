@@ -44,21 +44,20 @@ jobs:
           $wslPath = "/mnt/" + $winPath[0].ToString().ToLower() + "/" + $winPath.Substring(3).Replace("\", "/")
           echo "WSL_WORKSPACE=$wslPath" >> $env:GITHUB_ENV
 
+      # Simple single-line wsl docker calls avoid pipe/encoding issues for non-complex commands.
       - name: Validate Docker runtime and pull Flyway image
         run: |
-          @"
-          docker version
-          docker info
-          docker pull "${{ env.FLYWAY_DOCKER_IMAGE }}"
-          "@ -replace "`r`n", "`n" | wsl bash
+          wsl docker version
+          wsl docker info
+          wsl docker pull ${{ env.FLYWAY_DOCKER_IMAGE }}
+
+      # For docker run steps, write the bash script to a temp file with explicit LF line endings
+      # and execute it via wsl bash. This avoids PowerShell pipe CRLF encoding issues entirely.
 
       # Runs the Flyway Clean command against the Build database
       - name: Clean Build DB
         run: |
-          # PowerShell here-strings use CRLF; strip carriage returns before piping to wsl bash.
-          # --add-host makes host.docker.internal resolve to the WSL2 host gateway,
-          # allowing the container to reach SQL Server running on the Windows machine.
-          @"
+          $script = @"
           docker run --rm \
             --add-host host.docker.internal:host-gateway \
             -e FLYWAY_EMAIL="${{ env.EMAIL }}" \
@@ -76,11 +75,14 @@ jobs:
             -configFiles="/flyway/conf/flyway.toml" \
             -baselineOnMigrate=true \
             -errorOverrides=S0001:0:I-
-          "@ -replace "`r`n", "`n" | wsl bash
+          "@ -replace "`r`n", "`n" -replace "`r", "`n"
+          $tmpFile = "${{ github.workspace }}\fw_clean.sh"
+          [System.IO.File]::WriteAllText($tmpFile, $script, [System.Text.UTF8Encoding]::new($false))
+          wsl bash "${{ env.WSL_WORKSPACE }}/fw_clean.sh"
 
       - name: Migrate Build # Step to run Flyway migrations
         run: |
-          @"
+          $script = @"
           docker run --rm \
             --add-host host.docker.internal:host-gateway \
             -e FLYWAY_EMAIL="${{ env.EMAIL }}" \
@@ -98,11 +100,14 @@ jobs:
             -configFiles="/flyway/conf/flyway.toml" \
             -baselineOnMigrate=true \
             -errorOverrides=S0001:0:I-
-          "@ -replace "`r`n", "`n" | wsl bash
+          "@ -replace "`r`n", "`n" -replace "`r", "`n"
+          $tmpFile = "${{ github.workspace }}\fw_migrate.sh"
+          [System.IO.File]::WriteAllText($tmpFile, $script, [System.Text.UTF8Encoding]::new($false))
+          wsl bash "${{ env.WSL_WORKSPACE }}/fw_migrate.sh"
 
       - name: Rollback Build # Step to run Flyway undo migrations
         run: |
-          @"
+          $script = @"
           docker run --rm \
             --add-host host.docker.internal:host-gateway \
             -e FLYWAY_EMAIL="${{ env.EMAIL }}" \
@@ -121,4 +126,7 @@ jobs:
             -configFiles="/flyway/conf/flyway.toml" \
             -baselineOnMigrate=true \
             -errorOverrides=S0001:0:I-
-          "@ -replace "`r`n", "`n" | wsl bash
+          "@ -replace "`r`n", "`n" -replace "`r", "`n"
+          $tmpFile = "${{ github.workspace }}\fw_rollback.sh"
+          [System.IO.File]::WriteAllText($tmpFile, $script, [System.Text.UTF8Encoding]::new($false))
+          wsl bash "${{ env.WSL_WORKSPACE }}/fw_rollback.sh"
