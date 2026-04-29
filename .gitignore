@@ -7,3 +7,4 @@ report.json
 /actions-runner
 /reports
 /other
+.github/workflows/test.yml
