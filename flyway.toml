@@ -2,11 +2,18 @@ databaseType = "SqlServer"
 id = "cf0518a1-a90f-4d8a-bf55-469a6c48f15d"
 name = "DemoDB"
 
+[environments.check]
+provisioner = "clean"
+url = ""
+
 [flyway]
+callbackLocations = [ "filesystem:callbacks" ]
 defaultSchema = "dbo"
-locations = ["filesystem:migrations"]
+errorOverrides = [ "S0001:0:I-" ]
+locations = [ "filesystem:migrations" ]
 mixed = true
 outOfOrder = true
+schemaModelLocation = "schema-model"
 validateMigrationNaming = true
 
 [flyway.check]
@@ -16,8 +23,8 @@ majorTolerance = 0
 mode = "default"
 
 [flywayDesktop]
+enableMigrations = true
 developmentEnvironment = "development"
-schemaModel = "schema-model"
 shadowEnvironment = "shadow"
 
 [flywayDesktop.generate]
