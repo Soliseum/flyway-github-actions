@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - Development
-    # paths:
-    #   - "migrations/**"
+    paths:
+      - "migrations/**"
 
 # Environment Variables
 env:
@@ -108,7 +108,6 @@ jobs:
           wsl bash "${{ env.WSL_WORKSPACE }}/fw_migrate.sh"
 
       - name: Rollback Build # Step to run Flyway undo migrations
-        if: false # temporarily disabled for verification
         run: |
           $script = @'
           WINDOWS_HOST=$(ip route show | awk '/default/{print $3}')
