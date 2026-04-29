@@ -57,7 +57,7 @@ jobs:
       # Runs the Flyway Clean command against the Build database
       - name: Clean Build DB
         run: |
-          $script = @"
+          $script = @'
           WINDOWS_HOST=$(ip route show | awk '/default/{print $3}')
           docker run --rm \
             --add-host host.docker.internal:${WINDOWS_HOST} \
@@ -76,14 +76,14 @@ jobs:
             -configFiles="/flyway/conf/flyway.toml" \
             -baselineOnMigrate=true \
             -errorOverrides=S0001:0:I-
-          "@ -replace "`r`n", "`n" -replace "`r", "`n"
+          '@ -replace "`r`n", "`n" -replace "`r", "`n"
           $tmpFile = "${{ github.workspace }}\fw_clean.sh"
           [System.IO.File]::WriteAllText($tmpFile, $script, [System.Text.UTF8Encoding]::new($false))
           wsl bash "${{ env.WSL_WORKSPACE }}/fw_clean.sh"
 
       - name: Migrate Build # Step to run Flyway migrations
         run: |
-          $script = @"
+          $script = @'
           WINDOWS_HOST=$(ip route show | awk '/default/{print $3}')
           docker run --rm \
             --add-host host.docker.internal:${WINDOWS_HOST} \
@@ -102,14 +102,14 @@ jobs:
             -configFiles="/flyway/conf/flyway.toml" \
             -baselineOnMigrate=true \
             -errorOverrides=S0001:0:I-
-          "@ -replace "`r`n", "`n" -replace "`r", "`n"
+          '@ -replace "`r`n", "`n" -replace "`r", "`n"
           $tmpFile = "${{ github.workspace }}\fw_migrate.sh"
           [System.IO.File]::WriteAllText($tmpFile, $script, [System.Text.UTF8Encoding]::new($false))
           wsl bash "${{ env.WSL_WORKSPACE }}/fw_migrate.sh"
 
       - name: Rollback Build # Step to run Flyway undo migrations
         run: |
-          $script = @"
+          $script = @'
           WINDOWS_HOST=$(ip route show | awk '/default/{print $3}')
           docker run --rm \
             --add-host host.docker.internal:${WINDOWS_HOST} \
@@ -129,7 +129,7 @@ jobs:
             -configFiles="/flyway/conf/flyway.toml" \
             -baselineOnMigrate=true \
             -errorOverrides=S0001:0:I-
-          "@ -replace "`r`n", "`n" -replace "`r", "`n"
+          '@ -replace "`r`n", "`n" -replace "`r", "`n"
           $tmpFile = "${{ github.workspace }}\fw_rollback.sh"
           [System.IO.File]::WriteAllText($tmpFile, $script, [System.Text.UTF8Encoding]::new($false))
           wsl bash "${{ env.WSL_WORKSPACE }}/fw_rollback.sh"
