@@ -1,0 +1,21 @@
+{
+  "$schema" : "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1/schema/sarif-schema-2.1.0.json",
+  "version" : "2.1.0",
+  "runs" : [ {
+    "tool" : {
+      "driver" : {
+        "name" : "Redgate Flyway Code Review",
+        "version" : "12.5.1-rc1928",
+        "informationUri" : "https://help.red-gate.com/help/flyway-cli12/help_5.aspx?topic=check-code",
+        "rules" : [ ]
+      }
+    },
+    "results" : [ ],
+    "originalUriBaseIds" : {
+      "%SRCROOT%" : {
+        "uri" : "file:///C:/Projects/DemoDB/",
+        "uriBaseId" : null
+      }
+    }
+  } ]
+}
