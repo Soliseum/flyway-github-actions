@@ -6,6 +6,10 @@ name = "DemoDB"
 provisioner = "clean"
 url = ""
 
+[environments.build]
+url = ""
+provisioner = "clean"
+
 [flyway]
 callbackLocations = [ "filesystem:callbacks" ]
 defaultSchema = "dbo"
@@ -16,16 +20,20 @@ outOfOrder = true
 schemaModelLocation = "schema-model"
 validateMigrationNaming = true
 
-[flyway.check]
-majorTolerance = 0
+# Code review uses Flyway's built-in rule library.
+# Custom sqlfluff rules live in code-review-rules/, which is gitignored and so is
+# not available to CI - re-add sqlfluffCustomRulesPath/rulesConfig if that changes.
+[flyway.check.code]
+failOnError = true
 
-[flyway.plugins.clean]
+[flyway.sqlserver.clean]
 mode = "default"
 
 [flywayDesktop]
 enableMigrations = true
 developmentEnvironment = "development"
 shadowEnvironment = "shadow"
+deploymentPlatform = "GitHub"
 
 [flywayDesktop.generate]
 undoScripts = true

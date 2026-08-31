@@ -8,3 +8,12 @@ report.json
 /reports
 /other
 .github/workflows/test.yml
+/code-review-rules
+
+# Python (custom sqlfluff rules in code-review-rules/)
+__pycache__/
+*.pyc
+.venv*/
+AGENT_NOTES.md
+SKILL.md
+README.md
