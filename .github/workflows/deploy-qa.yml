@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - QA
-    paths:
-      - "migrations/**"
+    # paths:
+    #   - "migrations/**"
 
 env:
   # Variables - Create these in Project Settings > Variables > Actions
