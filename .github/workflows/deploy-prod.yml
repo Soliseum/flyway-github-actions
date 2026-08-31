@@ -34,9 +34,7 @@ jobs:
     runs-on: self-hosted # Runner to execute the job
 
     steps: # Steps are the individual tasks that are executed in the job
-      - uses: actions/checkout@v5 # Check out the repository
-        with: # Additional options for the action
-          ref: "Production" # Branch to check out
+      - uses: actions/checkout@v5 # Check out the commit that triggered this run
 
       # NOTE: Windows runners only - not required on Linux runners, where bash is native.
       # Git for Windows' default install puts only Git\cmd on PATH (git.exe, no bash.exe),
@@ -53,6 +51,7 @@ jobs:
       - name: Setup Flyway
         uses: red-gate/setup-flyway@v3
         with:
+          version: "13.4.0" # Pin for reproducible runs - bump deliberately
           edition: enterprise
           i-agree-to-the-eula: true
           email: ${{ env.EMAIL }}
@@ -79,16 +78,14 @@ jobs:
   # You can achieve similar functionality using environments with required reviewers or by integrating external approval mechanisms.
   # Alternatively maybe a Review Branch prior to pulling to Production or another downstream environment.
 
-  # Separate Prod 1 and Prod 2 into separate simulatneous jobs, only make one of them dependent on the manual approval step for demo purposes
+  # Prod 1 and Prod 2 are separate simultaneous jobs; both wait for the report job.
   flyway-deploy-prod-1:
     name: Flyway Deploy Production 1
     runs-on: self-hosted # Runner to execute the job
     needs: flyway-report # This job depends on the completion of the flyway-report job
 
     steps: # Steps are the individual tasks that are executed in the job
-      - uses: actions/checkout@v5 # Check out the repository
-        with: # Additional options for the action
-          ref: "Production" # Branch to check out
+      - uses: actions/checkout@v5 # Check out the commit that triggered this run
 
       # NOTE: Windows runners only - see comment in the flyway-report job above.
       - name: Add Git Bash to PATH
@@ -101,6 +98,7 @@ jobs:
       - name: Setup Flyway
         uses: red-gate/setup-flyway@v3
         with:
+          version: "13.4.0" # Pin for reproducible runs - bump deliberately
           edition: enterprise
           i-agree-to-the-eula: true
           email: ${{ env.EMAIL }}
@@ -120,9 +118,7 @@ jobs:
     needs: flyway-report # This job depends on the completion of the flyway-report job
 
     steps: # Steps are the individual tasks that are executed in the job
-      - uses: actions/checkout@v5 # Check out the repository
-        with: # Additional options for the action
-          ref: "Production" # Branch to check out
+      - uses: actions/checkout@v5 # Check out the commit that triggered this run
 
       # NOTE: Windows runners only - see comment in the flyway-report job above.
       - name: Add Git Bash to PATH
@@ -135,6 +131,7 @@ jobs:
       - name: Setup Flyway
         uses: red-gate/setup-flyway@v3
         with:
+          version: "13.4.0" # Pin for reproducible runs - bump deliberately
           edition: enterprise
           i-agree-to-the-eula: true
           email: ${{ env.EMAIL }}
