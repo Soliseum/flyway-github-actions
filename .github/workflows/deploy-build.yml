@@ -18,6 +18,10 @@ env:
   TOKEN: ${{ secrets.FLYWAY_TOKEN }}
   DB_USER_BUILD: ${{ secrets.DB_USER_NAME_QA }}
   DB_USER_PW_BUILD: ${{ secrets.DB_USER_PW_QA }}
+  DB_USER_CHECK: ${{ secrets.DB_USER_NAME_QA }}
+  DB_USER_PW_CHECK: ${{ secrets.DB_USER_PW_QA }}
+  DB_USER_QA: ${{ secrets.DB_USER_NAME_QA }}
+  DB_USER_PW_QA: ${{ secrets.DB_USER_PW_QA }}
   FIRST_UNDO_SCRIPT: ${{ secrets.FIRST_UNDO_SCRIPT }} # Undo down to and including this version
 
 # Required so the code review results can be uploaded to GitHub Code Scanning
@@ -89,12 +93,12 @@ jobs:
         uses: red-gate/flyway-actions/migrations/checks@v2
         with:
           target-url: ${{ env.JDBC_QA }}
-          target-user: ${{ env.DB_USER_BUILD }}
-          target-password: ${{ env.DB_USER_PW_BUILD }}
+          target-user: ${{ env.DB_USER_QA }}
+          target-password: ${{ env.DB_USER_PW_QA }}
           build-environment: check
           build-url: ${{ env.JDBC_CHECK }}
-          build-user: ${{ env.DB_USER_BUILD }}
-          build-password: ${{ env.DB_USER_PW_BUILD }}
+          build-user: ${{ env.DB_USER_CHECK }}
+          build-password: ${{ env.DB_USER_PW_CHECK }}
           build-ok-to-erase: true # Check DB is a throwaway shadow, cleaned each run
           fail-on-drift: false # Surface drift in the report rather than failing the build
           pre-deployment-report-name: flyway-qa-pre-deployment-report

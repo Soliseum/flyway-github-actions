@@ -5,16 +5,15 @@
     "tool" : {
       "driver" : {
         "name" : "Redgate Flyway Code Review",
-        "version" : "12.5.1-rc1928",
-        "informationUri" : "https://help.red-gate.com/help/flyway-cli12/help_5.aspx?topic=check-code",
+        "version" : "13.1.0-rc2501",
+        "informationUri" : "https://help.red-gate.com/help/flyway-cli13/help_1.aspx?topic=check-code",
         "rules" : [ ]
       }
     },
     "results" : [ ],
     "originalUriBaseIds" : {
       "%SRCROOT%" : {
-        "uri" : "file:///C:/Projects/DemoDB/",
-        "uriBaseId" : null
+        "uri" : "file:///C:/Projects/DemoDB/"
       }
     }
   } ]
