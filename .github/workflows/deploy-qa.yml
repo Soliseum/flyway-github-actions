@@ -21,9 +21,7 @@ jobs:
     # runs-on: ubuntu-latest
 
     steps: # Steps are the individual tasks that are executed in the job
-      - uses: actions/checkout@v5 # Check out the repository
-        with: # Additional options for the action
-          ref: "QA" # Branch to check out
+      - uses: actions/checkout@v5 # Check out the commit that triggered this run
 
       # NOTE: Windows runners only - not required on Linux runners, where bash is native.
       # Git for Windows' default install puts only Git\cmd on PATH (git.exe, no bash.exe),
@@ -40,6 +38,7 @@ jobs:
       - name: Setup Flyway
         uses: red-gate/setup-flyway@v3
         with:
+          version: "13.4.0" # Pin for reproducible runs - bump deliberately
           edition: enterprise
           i-agree-to-the-eula: true
           email: ${{ env.EMAIL }}
@@ -51,3 +50,4 @@ jobs:
           target-url: ${{ env.JDBC_QA }}
           target-user: ${{ env.DB_USER_QA }}
           target-password: ${{ env.DB_USER_PW_QA }}
+          deployment-report-name: flyway-qa-deployment-report
