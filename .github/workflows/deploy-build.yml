@@ -36,9 +36,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
         with:
-          ref: "Development"
-          fetch-depth: 0
-          clean: true
+          clean: true # Ensure the workspace is cleaned before the workflow runs
 
       # NOTE: Windows runners only - not required on Linux runners, where bash is native.
       # Git for Windows' default install puts only Git\cmd on PATH (git.exe, no bash.exe),
@@ -55,6 +53,7 @@ jobs:
       - name: Setup Flyway
         uses: red-gate/setup-flyway@v3
         with:
+          version: "13.4.0" # Pin for reproducible runs - bump deliberately
           edition: enterprise
           i-agree-to-the-eula: true
           email: ${{ env.EMAIL }}
