@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - Production
-    # paths:
-    #   - "migrations/**"
+    paths:
+      - "migrations/**"
 
 # Environment Variables
 env:
@@ -37,7 +37,7 @@ jobs:
         shell: cmd # Default shell. Use Windows Command Prompt
 
     steps: # Steps are the individual tasks that are executed in the job
-      - uses: actions/checkout@v4 # Check out the repository
+      - uses: actions/checkout@v5 # Check out the repository
         with: # Additional options for the action
           ref: "Production" # Branch to check out
 
@@ -52,7 +52,7 @@ jobs:
           xcopy /E /I "C:\Projects\DemoDB\reports" "reports/"
 
       - name: Publish Check Report as Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: flyway-reports
           path: reports/
@@ -71,7 +71,7 @@ jobs:
     needs: flyway-report # This job depends on the completion of the flyway-report job
 
     steps: # Steps are the individual tasks that are executed in the job
-      - uses: actions/checkout@v4 # Check out the repository
+      - uses: actions/checkout@v5 # Check out the repository
         with: # Additional options for the action
           ref: "Production" # Branch to check out
 
@@ -89,7 +89,7 @@ jobs:
     needs: flyway-report # This job depends on the completion of the flyway-report job
 
     steps: # Steps are the individual tasks that are executed in the job
-      - uses: actions/checkout@v4 # Check out the repository
+      - uses: actions/checkout@v5 # Check out the repository
         with: # Additional options for the action
           ref: "Production" # Branch to check out
 
