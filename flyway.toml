@@ -6,6 +6,10 @@ name = "DemoDB"
 provisioner = "clean"
 url = ""
 
+[environments.build]
+url = ""
+provisioner = "clean"
+
 [flyway]
 callbackLocations = [ "filesystem:callbacks" ]
 defaultSchema = "dbo"
@@ -16,6 +20,13 @@ outOfOrder = true
 schemaModelLocation = "schema-model"
 validateMigrationNaming = true
 
+[flyway.check]
+sqlfluffCustomRulesPath = "code-review-rules"
+rulesConfig = "code-review-rules/sqlfluff.cfg"
+
+  [flyway.check.code]
+  failOnError = true
+
 [flyway.sqlserver.clean]
 mode = "default"
 
@@ -23,6 +34,7 @@ mode = "default"
 enableMigrations = true
 developmentEnvironment = "development"
 shadowEnvironment = "shadow"
+deploymentPlatform = "GitHub"
 
   [flywayDesktop.generate]
   undoScripts = true
