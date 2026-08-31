@@ -38,10 +38,6 @@ deploymentPlatform = "GitHub"
 [flywayDesktop.generate]
 undoScripts = true
 
-[environments.check]
-url = ""
-provisioner = "clean"
-
 [redgateCompare]
 filterFile = "filter.rgf"
 
