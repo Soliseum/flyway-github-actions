@@ -19,16 +19,35 @@ jobs:
   flyway-deploy-qa:
     runs-on: self-hosted # Runner to execute the job
     # runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: cmd # Default shell. Use Windows Command Prompt
 
     steps: # Steps are the individual tasks that are executed in the job
-      - uses: actions/checkout@v4 # Check out the repository
+      - uses: actions/checkout@v5 # Check out the repository
         with: # Additional options for the action
           ref: "QA" # Branch to check out
 
+      # NOTE: Windows runners only - not required on Linux runners, where bash is native.
+      # Git for Windows' default install puts only Git\cmd on PATH (git.exe, no bash.exe),
+      # so `shell: bash` inside the Flyway actions resolves to WSL's bash, which cannot
+      # read the Windows script path. This puts Git Bash ahead of it.
+      - name: Add Git Bash to PATH
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          "C:\Program Files\Git\bin" | Out-File $env:GITHUB_PATH -Append -Encoding utf8
+          "C:\Program Files\Git\usr\bin" | Out-File $env:GITHUB_PATH -Append -Encoding utf8
+
+      # Installs the Flyway CLI on the runner and adds it to PATH
+      - name: Setup Flyway
+        uses: red-gate/setup-flyway@v3
+        with:
+          edition: enterprise
+          i-agree-to-the-eula: true
+          email: ${{ env.EMAIL }}
+          token: ${{ env.TOKEN }}
+
       - name: Deploy to QA # Step to run Flyway migrations
-        # To use username and password instead of windows integrated security Ensure that SQL Server is configured to allow SQL Server authentication. You can check this in SQL Server Management Studio (SSMS) under the server properties -> Security -> Server authentication. Ensure "SQL Server and Windows Authentication mode" is selected.
-        run: flyway -email=${{ env.EMAIL }} -token=${{ env.TOKEN }} info migrate info -user=${{ env.DB_USER_QA }} -password=${{ env.DB_USER_PW_QA }} -url=${{ env.JDBC_QA }} -IAgreeToTheEula -locations="filesystem:${{ github.workspace }}/migrations" -configFiles="${{ github.workspace }}/flyway.toml" -baselineOnMigrate=true -errorOverrides=S0001:0:I-
-        working-directory: ./migrations
+        uses: red-gate/flyway-actions/migrations/deploy@v2
+        with:
+          target-url: ${{ env.JDBC_QA }}
+          target-user: ${{ env.DB_USER_QA }}
+          target-password: ${{ env.DB_USER_PW_QA }}
