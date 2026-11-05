@@ -1,0 +1,5 @@
+SET IDENTITY_INSERT [dbo].[Clients] ON
+INSERT INTO [dbo].[Clients] ([ClientID], [Address], [Name], [Email], [Phone], [CreatedAt], [Status], [LastUpdated], [Test], [Test2], [Test3]) VALUES (1, N'123 Business St, New York, NY', N'Acme Corporation', N'contact@acme.com', N'555-0101', '2026-11-05 07:59:47.690', N'Active', '2026-11-05 07:59:47.690', NULL, NULL, NULL)
+INSERT INTO [dbo].[Clients] ([ClientID], [Address], [Name], [Email], [Phone], [CreatedAt], [Status], [LastUpdated], [Test], [Test2], [Test3]) VALUES (2, N'456 Innovation Ave, San Francisco, CA', N'Tech Solutions Inc', N'info@techsolutions.com', N'555-0102', '2026-11-05 07:59:47.690', N'Active', '2026-11-05 07:59:47.690', NULL, NULL, NULL)
+INSERT INTO [dbo].[Clients] ([ClientID], [Address], [Name], [Email], [Phone], [CreatedAt], [Status], [LastUpdated], [Test], [Test2], [Test3]) VALUES (3, N'789 Commerce Blvd, Chicago, IL', N'Global Enterprises', N'support@globalent.com', N'555-0103', '2026-11-05 07:59:47.690', N'Active', '2026-11-05 07:59:47.690', NULL, NULL, NULL)
+SET IDENTITY_INSERT [dbo].[Clients] OFF
