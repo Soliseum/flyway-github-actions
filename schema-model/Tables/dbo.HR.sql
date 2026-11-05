@@ -7,7 +7,8 @@ CREATE TABLE [dbo].[HR]
 [HireDate] [date] NULL,
 [ClientID] [int] NULL,
 [Department] [nvarchar] (100) NULL,
-[Salary] [decimal] (12, 2) NULL
+[Salary] [decimal] (12, 2) NULL,
+[Details] [nchar] (100) NULL
 )
 GO
 ALTER TABLE [dbo].[HR] ADD CONSTRAINT [PK__HR__7AD04FF1C7C12171] PRIMARY KEY CLUSTERED ([EmployeeID])
